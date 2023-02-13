@@ -131,10 +131,6 @@ public class FolderService {
                     () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
             );
 
-            System.out.println("FolderService.getProductsInFolder");
-            System.out.println("folderId = " + folderId);
-            System.out.println("user = " + user.getId());
-
             return productRepository.findAllByUserIdAndFolderList_Id(user.getId(), folderId, pageable);
 
         } else {
