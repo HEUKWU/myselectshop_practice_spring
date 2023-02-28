@@ -29,29 +29,22 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
-        System.out.println("ProductService.createProduct");
-        System.out.println("user.getUsername() = " + user.getUsername());
-
-        // 요청받은 DTO 로 DB에 저장할 객체 만들기
         Product product = productRepository.saveAndFlush(new Product(requestDto, user.getId()));
 
         return new ProductResponseDto(product);
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> getProducts(User user,
-                                     int page, int size, String sortBy, boolean isAsc) {
-        // 페이징 처리
+    public Page<Product> getProducts(User user, int page, int size, String sortBy, boolean isAsc) {
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        // 사용자 권한 가져와서 ADMIN 이면 전체 조회, USER 면 본인이 추가한 부분 조회
+
         UserRoleEnum userRoleEnum = user.getRole();
 
         Page<Product> products;
 
         if (userRoleEnum == UserRoleEnum.USER) {
-            // 사용자 권한이 USER일 경우
             products = productRepository.findAllByUserId(user.getId(), pageable);
         } else {
             products = productRepository.findAll(pageable);
@@ -62,11 +55,9 @@ public class ProductService {
 
     @Transactional
     public Long updateProduct(Long id, ProductMypriceRequestDto requestDto, User user) {
-
         Product product = productRepository.findByIdAndUserId(id, user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 상품은 존재하지 않습니다.")
         );
-
         product.update(requestDto);
 
         return product.getId();
